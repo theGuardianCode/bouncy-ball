@@ -1,15 +1,17 @@
 #include <stdio.h>
+#include <stdbool.h>
+#include <math.h>
 #include <SDL2/SDL.h>
 
-#define SCREEN_WIDTH 900
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 1152
+#define SCREEN_HEIGHT 860
 
-#define COLOUR_WHITE 0xffffffff
-#define COLOUR_BLACK 0x00000000
+#define COLOUR_WHITE 0xffffff
+#define COLOUR_BLACK 0x000000
 
-#define GRAVITY 0.2
+#define GRAVITY 1
 
-const double DAMPENING = 0.9;
+const double DAMPENING = 0.98;
 
 SDL_Surface* g_surface = NULL;
 
@@ -99,14 +101,32 @@ int main()
     double dt = 0;
 
     SDL_Event event;
-    int running = 1;
+    bool running = true;
+    bool holding = false;
     while(running)
     {
         while(SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
             {
-                running = 0;
+                running = false;
+            }
+            else if (event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                if (holding)
+                {
+                    holding = false;
+                }
+                else
+                {
+                    int mouse_x, mouse_y;
+                    SDL_GetMouseState(&mouse_x, &mouse_y);
+                    if (mouse_x > circle.x - circle.radius && mouse_x < circle.x + circle.radius &&
+                            mouse_y > circle.y - circle.radius && mouse_y < circle.y + circle.radius)
+                    {
+                        holding = true;
+                    }
+                }
             }
         }
         last = now;
@@ -116,7 +136,15 @@ int main()
 
         SDL_FillRect(g_surface, &screenRect, COLOUR_BLACK);
         
-        UpdatePosition(&circle);
+        if (holding != true)
+        {
+            UpdatePosition(&circle);
+        } else {
+            int mouse_x, mouse_y;
+            SDL_GetMouseState(&mouse_x, &mouse_y);
+            circle.x = mouse_x;
+            circle.y = mouse_y;
+        }
         DrawCircle(circle, COLOUR_WHITE);
         SDL_UpdateWindowSurface(window);
 
