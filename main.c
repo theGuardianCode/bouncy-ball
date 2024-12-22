@@ -4,11 +4,18 @@
 #define SCREEN_WIDTH 900
 #define SCREEN_HEIGHT 600
 
+#define COLOUR_WHITE 0xffffffff
+#define COLOUR_BLACK 0x00000000
+
+#define GRAVITY 1.5
+
 typedef struct circle
 {
     int x;
     int y;
     int radius;
+    int vel_x;
+    int vel_y;
 } Circle;
 
 void DrawCircle(SDL_Surface* surface, Circle circle, int colour)
@@ -36,12 +43,23 @@ void DrawCircle(SDL_Surface* surface, Circle circle, int colour)
     }
 }
 
+void UpdatePosition(Circle* circle)
+{
+    circle->x += circle->vel_x;
+    circle->y += circle->vel_y;
+
+    circle->vel_y += GRAVITY;
+}
+
 int main()
 {
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window* window = SDL_CreateWindow("Bouncy Ball", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
     SDL_Surface* surface = SDL_GetWindowSurface(window);
+
+    SDL_Rect screenRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    Circle circle = {300, 300, 50, 0, 0};
 
     SDL_Event event;
     int running = 1;
@@ -54,11 +72,15 @@ int main()
                 running = 0;
             }
         }
+
+        SDL_FillRect(surface, &screenRect, COLOUR_BLACK);
         
-        Circle circle = {300, 300, 50};
-        DrawCircle(surface, circle, 0xffffffff);
+        UpdatePosition(&circle);
+        DrawCircle(surface, circle, COLOUR_WHITE);
 
         SDL_UpdateWindowSurface(window);
+
+        SDL_Delay(20);
     }
 
 }
