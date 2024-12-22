@@ -4,6 +4,13 @@
 #define SCREEN_WIDTH 900
 #define SCREEN_HEIGHT 600
 
+typedef struct circle
+{
+    int x;
+    int y;
+    int radius;
+} Circle;
+
 int main()
 {
     SDL_Init(SDL_INIT_VIDEO);
